@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShopAPI · DevSecOps workshop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="logo">🛒</span> ShopAPI</div>
+    <div class="tag">deployed by your pipeline</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Workshop swag store</h1>
+      <p>A tiny shop, shipped to AWS by GitHub Actions. Every gate in your pipeline had to pass before this page went live.</p>
+    </section>
+
+    <section>
+      <h2>Products</h2>
+      <div id="products" class="grid"></div>
+    </section>
+
+    <section class="lookup">
+      <h2>Find a product by ID</h2>
+      <form id="lookup">
+        <input id="pid" name="id" placeholder="e.g. 2" autocomplete="off">
+        <button type="submit">Search</button>
+      </form>
+      <p class="hint">Calls <code>GET /product?id=…</code>. Try a normal ID first. Then think like an attacker.</p>
+      <pre id="result">No search yet.</pre>
+    </section>
+  </main>
+
+  <footer>
+    <span>Version <code id="version">…</code></span>
+    <span>Scan only what you own.</span>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>
