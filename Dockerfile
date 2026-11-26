@@ -1,11 +1,11 @@
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY app.js ./
 COPY public ./public
 
-FROM node:22-alpine
+FROM node:26-alpine
 # Production doesn't need a package manager: drop npm, npx and corepack (and their CVEs).
 RUN rm -rf /usr/local/lib/node_modules /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 WORKDIR /app
