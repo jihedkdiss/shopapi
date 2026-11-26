@@ -1,10 +1,19 @@
 const express = require('express');
 const initSqlJs = require('sql.js');
+const helmet = require('helmet');
 const app = express();
+// Security headers (CSP, X-Content-Type-Options, no X-Powered-By...). The lab serves plain HTTP,
+// so don't tell browsers to upgrade requests to HTTPS.
+app.use(helmet({ contentSecurityPolicy: { directives: { upgradeInsecureRequests: null } } }));
 let db;
 app.get('/product', (req, res) => {
-  try { const result = db.exec("SELECT * FROM products WHERE id = " + req.query.id); res.json(toRows(result)); }
-  catch (err) { res.status(400).json({ error: err.message }); }
+  // Parameterized: the id travels separately from the SQL, so it can never become SQL.
+  const stmt = db.prepare('SELECT * FROM products WHERE id = ? AND hidden = 0');
+  stmt.bind([req.query.id]);
+  const rows = [];
+  while (stmt.step()) rows.push(stmt.getAsObject());
+  stmt.free();
+  res.json(rows);
 });
 app.get('/products', (req, res) => res.json(toRows(db.exec('SELECT id, name, price, emoji FROM products WHERE hidden = 0'))));
 app.get('/version', (req, res) => res.json({ version: process.env.APP_VERSION || 'local' }));

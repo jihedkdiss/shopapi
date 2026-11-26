@@ -1,0 +1,4 @@
+# Keys from the first commit. Rotated (they were never real: workshop fakes).
+# Rotate first, then add the fingerprint here so history stops failing the build.
+4cffff8047421be13b179b3f2f1d9f078c7b4e6f:app.js:aws-access-token:4
+4cffff8047421be13b179b3f2f1d9f078c7b4e6f:app.js:generic-api-key:5
