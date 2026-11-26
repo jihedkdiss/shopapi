@@ -20,6 +20,13 @@ image to Amazon ECR, then an SSM command tells an EC2 instance to pull it. ZAP t
 
 Open the deployed shop at `http://<APP_HOST>:8080/` (Chrome forces HTTPS on port 80 and this lab serves plain HTTP).
 
+## How the lab works
+
+1. Fork this repo, then open the **Actions** tab and enable workflows.
+2. Push anything: watch five red gates.
+3. Fix one problem at a time (read the failing job's log first), push, repeat.
+4. All green? Your change deploys, and the version in the shop's footer changes.
+
 ## Run the scanners locally
 
 ```bash
