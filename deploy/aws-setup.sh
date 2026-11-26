@@ -92,13 +92,17 @@ fi
 INSTANCE_ARN="arn:aws:ec2:$REGION:$ACCOUNT:instance/$INSTANCE_ID"
 
 # 6. Deploy role for GitHub Actions: only this repo's main branch can assume it.
+# New repos get "immutable" OIDC subjects: repo:<owner>@<owner-id>/<repo>@<repo-id>. Ask GitHub for the exact prefix.
+SUB_PREFIX="${SUB_PREFIX:-$(gh api "repos/$GH_REPO/actions/oidc/customization/sub" --jq .sub_claim_prefix 2>/dev/null || true)}"
+SUB_PREFIX="${SUB_PREFIX:-repo:$GH_REPO}"
+echo "OIDC subject: $SUB_PREFIX:ref:refs/heads/main"
 TRUST=$(cat <<EOF
 {"Version":"2012-10-17","Statement":[{"Effect":"Allow",
  "Principal":{"Federated":"$OIDC_ARN"},
  "Action":"sts:AssumeRoleWithWebIdentity",
  "Condition":{"StringEquals":{
    "token.actions.githubusercontent.com:aud":"sts.amazonaws.com",
-   "token.actions.githubusercontent.com:sub":"repo:$GH_REPO:ref:refs/heads/main"}}}]}
+   "token.actions.githubusercontent.com:sub":"$SUB_PREFIX:ref:refs/heads/main"}}}]}
 EOF
 )
 POLICY=$(cat <<EOF
