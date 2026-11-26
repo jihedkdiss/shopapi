@@ -1,0 +1,10 @@
+const express = require('express');
+const mysql = require('mysql');
+const app = express();
+const AWS_ACCESS_KEY_ID = "AKIAM322DUK6YPV4DTKO";
+const AWS_SECRET_ACCESS_KEY = "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";
+const db = mysql.createConnection({ host: 'db', user: 'root', password: 'root', database: 'shop' });
+app.get('/product', (req, res) => {
+  db.query("SELECT * FROM products WHERE id = " + req.query.id, (err, rows) => res.json(rows));
+});
+app.listen(3000);
