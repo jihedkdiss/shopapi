@@ -70,7 +70,7 @@ aws ecr get-login-password --region $REGION | docker login --username AWS --pass
 docker pull "\$REGISTRY/$NAME:\$TAG"
 docker rm -f $NAME 2>/dev/null || true
 docker run -d --name $NAME --restart unless-stopped -p 80:3000 \\
-  --read-only --cap-drop ALL --security-opt no-new-privileges "\$REGISTRY/$NAME:\$TAG"
+  --read-only --cap-drop ALL --security-opt no-new-privileges -e APP_VERSION="\$TAG" "\$REGISTRY/$NAME:\$TAG"
 sleep 3
 curl -fsS http://localhost/health && echo " deployed \$TAG"
 SCRIPT
