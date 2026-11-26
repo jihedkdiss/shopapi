@@ -106,7 +106,8 @@ jobs:
   # ---------- Deploy: only from main, only if every gate passed ----------
   deploy:
     needs: [secrets, sast, sca, iac, image]
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # Forks have no AWS role configured: skip the deploy instead of failing.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.AWS_ROLE_ARN != ''
     runs-on: ubuntu-latest
     permissions:
       id-token: write # ask GitHub for the OIDC token
