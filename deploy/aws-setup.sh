@@ -43,13 +43,13 @@ if ! aws iam get-role --role-name "$NAME-ec2" >/dev/null 2>&1; then
   echo "created instance role; waiting for IAM to propagate"; sleep 15
 fi
 
-# 4. Security group: HTTP in from anywhere (the app + ZAP), no SSH.
+# 4. Security group: HTTP in from anywhere (80 for ZAP, 8080 for browsers), no SSH.
 VPC_ID=$(aws ec2 describe-vpcs --filters Name=isDefault,Values=true --query 'Vpcs[0].VpcId' --output text)
 SG_ID=$(aws ec2 describe-security-groups --filters Name=group-name,Values="$NAME-web" Name=vpc-id,Values="$VPC_ID" --query 'SecurityGroups[0].GroupId' --output text)
 if [ "$SG_ID" = "None" ]; then
   SG_ID=$(aws ec2 create-security-group --group-name "$NAME-web" --description "shopapi HTTP only, no SSH" --vpc-id "$VPC_ID" --query GroupId --output text)
   aws ec2 authorize-security-group-ingress --group-id "$SG_ID" \
-    --ip-permissions 'IpProtocol=tcp,FromPort=80,ToPort=80,IpRanges=[{CidrIp=0.0.0.0/0,Description="public HTTP"}]' >/dev/null
+    --ip-permissions 'IpProtocol=tcp,FromPort=80,ToPort=80,IpRanges=[{CidrIp=0.0.0.0/0,Description="public HTTP"}]'                      'IpProtocol=tcp,FromPort=8080,ToPort=8080,IpRanges=[{CidrIp=0.0.0.0/0,Description="HTTP alt port: Chrome does not force HTTPS here"}]' >/dev/null
 fi
 
 # 5. EC2 instance: Amazon Linux 2023, IMDSv2 required, Docker, /opt/deploy.sh
@@ -71,7 +71,7 @@ REGISTRY="$REGISTRY"
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin "\$REGISTRY"
 docker pull "\$REGISTRY/$NAME:\$TAG"
 docker rm -f $NAME 2>/dev/null || true
-docker run -d --name $NAME --restart unless-stopped -p 80:3000 \\
+docker run -d --name $NAME --restart unless-stopped -p 80:3000 -p 8080:3000 \\
   --read-only --cap-drop ALL --security-opt no-new-privileges -e APP_VERSION="\$TAG" "\$REGISTRY/$NAME:\$TAG"
 sleep 3
 curl -fsS http://localhost/health && echo " deployed \$TAG"

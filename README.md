@@ -18,6 +18,8 @@ image to Amazon ECR, then an SSM command tells an EC2 instance to pull it. ZAP t
 
 > Scan only what you own. All keys in this repo are fake.
 
+Open the deployed shop at `http://<APP_HOST>:8080/` (Chrome forces HTTPS on port 80 and this lab serves plain HTTP).
+
 ## Run the scanners locally
 
 ```bash
