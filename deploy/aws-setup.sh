@@ -9,6 +9,7 @@ GH_REPO="${GH_REPO:?set GH_REPO=<owner>/shopapi}"
 REGION="${AWS_REGION:-eu-west-3}"
 NAME=shopapi
 export AWS_REGION="$REGION" AWS_PAGER=""
+export MSYS_NO_PATHCONV=1 # Git Bash on Windows: don't rewrite /dev/xvda into a Windows path
 
 ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
 REGISTRY="$ACCOUNT.dkr.ecr.$REGION.amazonaws.com"
@@ -55,7 +56,8 @@ fi
 INSTANCE_ID=$(aws ec2 describe-instances --filters Name=tag:Name,Values="$NAME" Name=instance-state-name,Values=pending,running,stopped \
   --query 'Reservations[0].Instances[0].InstanceId' --output text)
 if [ "$INSTANCE_ID" = "None" ]; then
-  AMI=$(aws ssm get-parameter --name /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64 --query Parameter.Value --output text)
+  AMI=$(aws ec2 describe-images --owners amazon --filters 'Name=name,Values=al2023-ami-2023*-x86_64' 'Name=state,Values=available' \
+    --query 'sort_by(Images,&CreationDate)[-1].ImageId' --output text)
   USERDATA=$(cat <<EOF
 #!/bin/bash
 dnf install -y docker
